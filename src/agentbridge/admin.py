@@ -110,6 +110,13 @@ def _db(request: Request) -> Database:
     return db
 
 
+@router.get("/tenants", dependencies=[Depends(require(Permission.TENANTS_WRITE))])
+async def list_tenants(request: Request) -> list[dict[str, Any]]:
+    async with _db(request).session() as s:
+        rows = (await s.execute(select(Tenant).order_by(Tenant.created_at))).scalars().all()
+    return [{"id": tenant.id, "name": tenant.name} for tenant in rows]
+
+
 @router.post("/tenants", status_code=201, dependencies=[Depends(require(Permission.TENANTS_WRITE))])
 async def create_tenant(body: TenantIn, request: Request) -> dict[str, Any]:
     async with _db(request).session() as s:
@@ -120,6 +127,26 @@ async def create_tenant(body: TenantIn, request: Request) -> dict[str, Any]:
         except IntegrityError as exc:
             raise HTTPException(409, "tenant name already exists") from exc
         return {"id": tenant.id, "name": tenant.name}
+
+
+@router.get("/projects", dependencies=[Depends(require(Permission.PROJECTS_WRITE))])
+async def list_projects(request: Request, tenant_id: str | None = None) -> list[dict[str, Any]]:
+    async with _db(request).session() as s:
+        stmt = select(Project).order_by(Project.created_at)
+        if tenant_id:
+            stmt = stmt.where(Project.tenant_id == tenant_id)
+        rows = (await s.execute(stmt)).scalars().all()
+    return [
+        {
+            "id": project.id,
+            "tenant_id": project.tenant_id,
+            "name": project.name,
+            "monthly_token_budget": project.monthly_token_budget,
+            "monthly_cost_budget_usd": str(project.monthly_cost_budget_usd) if project.monthly_cost_budget_usd is not None else None,
+            "budget_mode": project.budget_mode,
+        }
+        for project in rows
+    ]
 
 
 @router.post(
