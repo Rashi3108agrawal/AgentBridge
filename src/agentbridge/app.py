@@ -10,7 +10,7 @@ from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, Response, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response, StreamingResponse
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from redis.asyncio import Redis
 
@@ -53,6 +53,7 @@ from agentbridge.redis_client import make_redis
 from agentbridge.registry import build_providers
 from agentbridge.routing.breaker import CircuitBreaker, InMemoryBreaker, RedisBreaker
 from agentbridge.service import GatewayService
+from agentbridge.ui import render_console
 
 _POLICIES = {"priority", "weighted", "cost", "latency"}
 _CACHE_MODES = {"bypass", "exact", "semantic"}
@@ -248,6 +249,17 @@ def create_app(
     @app.get("/metrics")
     async def prometheus_metrics() -> Response:
         return Response(generate_latest(metrics.registry), media_type=CONTENT_TYPE_LATEST)
+
+    @app.get("/")
+    async def root() -> Any:
+        return RedirectResponse(url="/ui", status_code=307)
+
+    @app.get("/ui")
+    async def ui() -> HTMLResponse:
+        return render_console(
+            providers=sorted(gateway.providers),
+            aliases=sorted(config.aliases),
+        )
 
     @app.get("/health")
     async def health() -> dict[str, str]:

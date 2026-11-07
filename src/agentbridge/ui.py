@@ -588,10 +588,10 @@ CONSOLE_HTML = """<!DOCTYPE html>
       </ul>
 
       <div class="sidebar-footer">
-        <div class="mini-stat"><span>Redis Stream Worker</span><span class="val" style="color:var(--status-ok)">ACTIVE</span></div>
-        <div class="mini-stat"><span>Pending Ingest Lag</span><span class="val">0 ms</span></div>
-        <div class="mini-stat"><span>Database Connection</span><span class="val">POOLED</span></div>
-        <div class="mini-stat"><span>Pepper Verification</span><span class="val">MATCHED</span></div>
+        <div class="mini-stat"><span>Configured Providers</span><span class="val">{{PROVIDER_COUNT}}</span></div>
+        <div class="mini-stat"><span>Aliases</span><span class="val">{{ALIAS_COUNT}}</span></div>
+        <div class="mini-stat"><span>Provider Set</span><span class="val mono">{{PROVIDER_NAMES}}</span></div>
+        <div class="mini-stat"><span>Alias Set</span><span class="val mono">{{ALIAS_NAMES}}</span></div>
       </div>
     </aside>
 
@@ -1121,7 +1121,17 @@ Telemetry Engine:   Prometheus Metrics (/metrics) + OpenTelemetry Spans (without
 """
 
 
-def render_console() -> HTMLResponse:
-    """Return the operations console HTML response."""
-    return HTMLResponse(content=CONSOLE_HTML, status_code=200)
+def render_console(
+    *,
+    providers: list[str] | None = None,
+    aliases: list[str] | None = None,
+) -> HTMLResponse:
+    """Return the operations console HTML response populated with a lightweight live summary."""
+    provider_names = providers or ["mock-primary", "mock-secondary"]
+    alias_names = aliases or ["chat-default", "embed-default"]
+    html = CONSOLE_HTML.replace("{{PROVIDER_COUNT}}", str(len(provider_names)))
+    html = html.replace("{{ALIAS_COUNT}}", str(len(alias_names)))
+    html = html.replace("{{PROVIDER_NAMES}}", ", ".join(provider_names))
+    html = html.replace("{{ALIAS_NAMES}}", ", ".join(alias_names))
+    return HTMLResponse(content=html, status_code=200)
 
