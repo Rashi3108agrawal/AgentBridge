@@ -8,19 +8,19 @@ import httpx
 import pytest
 from redis.asyncio import Redis
 
-from ai_gateway.app import create_app
-from ai_gateway.cache.exact import (
+from agentbridge.app import create_app
+from agentbridge.cache.exact import (
     InMemoryCacheStore,
     RedisCacheStore,
     cache_key,
     exact_cache_allowed,
 )
-from ai_gateway.cache.semantic import SemanticCache, cosine
-from ai_gateway.config import Settings
-from ai_gateway.models import ChatRequest, ChatResponse, Message, ToolSpec
-from ai_gateway.providers.base import Provider
-from ai_gateway.providers.mock import MockProvider, fake_embedding
-from ai_gateway.redis_client import make_redis
+from agentbridge.cache.semantic import SemanticCache, cosine
+from agentbridge.config import Settings
+from agentbridge.models import ChatRequest, ChatResponse, Message, ToolSpec
+from agentbridge.providers.base import Provider
+from agentbridge.providers.mock import MockProvider, fake_embedding
+from agentbridge.redis_client import make_redis
 from tests.conftest import ADMIN, app_client, make_config
 
 

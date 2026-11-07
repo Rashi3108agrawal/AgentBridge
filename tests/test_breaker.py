@@ -6,9 +6,9 @@ from collections.abc import AsyncIterator
 import pytest
 from redis.asyncio import Redis
 
-from ai_gateway.config import BreakerConfig
-from ai_gateway.redis_client import make_redis
-from ai_gateway.routing.breaker import BreakerState, CircuitBreaker, InMemoryBreaker, RedisBreaker
+from agentbridge.config import BreakerConfig
+from agentbridge.redis_client import make_redis
+from agentbridge.routing.breaker import BreakerState, CircuitBreaker, InMemoryBreaker, RedisBreaker
 
 CFG = BreakerConfig(window_s=10, min_requests=4, failure_ratio=0.5, cooldown_s=5)
 

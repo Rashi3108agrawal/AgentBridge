@@ -11,11 +11,11 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 
-from ai_gateway.app import create_app
-from ai_gateway.config import Settings
-from ai_gateway.metering.usage import InProcessSink
-from ai_gateway.providers.base import Provider
-from ai_gateway.providers.mock import MockProvider, http_5xx
+from agentbridge.app import create_app
+from agentbridge.config import Settings
+from agentbridge.metering.usage import InProcessSink
+from agentbridge.providers.base import Provider
+from agentbridge.providers.mock import MockProvider, http_5xx
 from tests.conftest import ADMIN, app_client, make_config
 
 CHAT = {"model": "chat-default", "messages": [{"role": "user", "content": "hello there"}]}

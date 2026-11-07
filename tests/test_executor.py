@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import pytest
 
-from ai_gateway import errors as err
-from ai_gateway.config import AliasConfig, BreakerConfig
-from ai_gateway.errors import AllTargetsFailedError, ProviderError
-from ai_gateway.models import ChatRequest, Message, StreamChunk
-from ai_gateway.providers.base import Provider
-from ai_gateway.providers.mock import MockProvider, bad_request, http_5xx, http_429, timeout
-from ai_gateway.routing.breaker import InMemoryBreaker
-from ai_gateway.routing.executor import ExecutionListener, Executor
-from ai_gateway.routing.health import LatencyTracker
+from agentbridge import errors as err
+from agentbridge.config import AliasConfig, BreakerConfig
+from agentbridge.errors import AllTargetsFailedError, ProviderError
+from agentbridge.models import ChatRequest, Message, StreamChunk
+from agentbridge.providers.base import Provider
+from agentbridge.providers.mock import MockProvider, bad_request, http_5xx, http_429, timeout
+from agentbridge.routing.breaker import InMemoryBreaker
+from agentbridge.routing.executor import ExecutionListener, Executor
+from agentbridge.routing.health import LatencyTracker
 
 
 class Recorder(ExecutionListener):

@@ -5,7 +5,7 @@
 set -euo pipefail
 GW=${GW:-http://localhost:58080}
 if [ -z "${GATEWAY_ADMIN:-}" ]; then
-  GATEWAY_ADMIN=$(docker compose run --rm -T gateway ai-gateway create-admin --email "demo-$RANDOM@example.com" --role owner 2>/dev/null | tail -1)
+  GATEWAY_ADMIN=$(docker compose run --rm -T gateway agentbridge create-admin --email "demo-$RANDOM@example.com" --role owner 2>/dev/null | tail -1)
   echo "Admin token (shown once; export GATEWAY_ADMIN to reuse): $GATEWAY_ADMIN"
 fi
 ADMIN="Authorization: Bearer $GATEWAY_ADMIN"

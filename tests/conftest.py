@@ -7,11 +7,11 @@ import httpx
 import pytest
 from fastapi import FastAPI
 
-from ai_gateway.admin_users import Role, create_admin_user
-from ai_gateway.app import create_app
-from ai_gateway.config import GatewayConfig, Settings
-from ai_gateway.providers.base import Provider
-from ai_gateway.providers.mock import MockProvider
+from agentbridge.admin_users import Role, create_admin_user
+from agentbridge.app import create_app
+from agentbridge.config import GatewayConfig, Settings
+from agentbridge.providers.base import Provider
+from agentbridge.providers.mock import MockProvider
 
 
 def make_config(**aliases: object) -> GatewayConfig:

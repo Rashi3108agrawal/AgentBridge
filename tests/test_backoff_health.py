@@ -4,8 +4,8 @@ import random
 
 import pytest
 
-from ai_gateway.routing.backoff import backoff_delay
-from ai_gateway.routing.health import LatencyTracker
+from agentbridge.routing.backoff import backoff_delay
+from agentbridge.routing.health import LatencyTracker
 
 
 def test_no_jitter_follows_schedule_and_repeats_last() -> None:

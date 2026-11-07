@@ -4,9 +4,9 @@ import json
 
 import pytest
 
-from ai_gateway.errors import InvalidRequestError
-from ai_gateway.models import StreamChunk, ToolCallDelta, Usage
-from ai_gateway.openai_compat import ChunkEncoder, OpenAIChatRequest, to_internal
+from agentbridge.errors import InvalidRequestError
+from agentbridge.models import StreamChunk, ToolCallDelta, Usage
+from agentbridge.openai_compat import ChunkEncoder, OpenAIChatRequest, to_internal
 
 
 def parse(body: dict[str, object]) -> OpenAIChatRequest:

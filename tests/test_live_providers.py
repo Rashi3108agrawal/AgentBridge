@@ -10,11 +10,11 @@ import os
 
 import pytest
 
-from ai_gateway.models import ChatRequest, Message
-from ai_gateway.providers.anthropic import AnthropicProvider
-from ai_gateway.providers.base import Provider
-from ai_gateway.providers.gemini import GeminiProvider
-from ai_gateway.providers.openai import OpenAIProvider
+from agentbridge.models import ChatRequest, Message
+from agentbridge.providers.anthropic import AnthropicProvider
+from agentbridge.providers.base import Provider
+from agentbridge.providers.gemini import GeminiProvider
+from agentbridge.providers.openai import OpenAIProvider
 
 CASES = [
     (

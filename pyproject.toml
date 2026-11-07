@@ -1,10 +1,10 @@
 [project]
-name = "ai-gateway"
+name = "agentbridge"
 version = "0.1.0"
-description = "Self-hosted OpenAI-compatible LLM gateway: routing, fallback, caching, quotas, metering"
+description = "Enterprise AI infrastructure and agent orchestration platform: intelligent routing, resilience, caching, quotas, telemetry"
 readme = "README.md"
 authors = [
-    { name = "Chaitanya Mhetre", email = "mhetrechaitanya06@gmail.com" }
+    { name = "AgentBridge Platform Team", email = "platform@agentbridge.io" }
 ]
 requires-python = ">=3.12"
 dependencies = [
@@ -42,7 +42,8 @@ dev = [
 ]
 
 [project.scripts]
-ai-gateway = "ai_gateway.cli:main"
+agentbridge = "agentbridge.cli:main"
+ai-gateway = "agentbridge.cli:main"
 
 [tool.ruff]
 line-length = 100

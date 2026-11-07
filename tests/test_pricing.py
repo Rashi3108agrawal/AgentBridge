@@ -4,8 +4,8 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
-from ai_gateway.metering.pricing import PriceEntry, PriceTable
-from ai_gateway.models import Usage
+from agentbridge.metering.pricing import PriceEntry, PriceTable
+from agentbridge.models import Usage
 
 
 def entry(**kw: object) -> PriceEntry:

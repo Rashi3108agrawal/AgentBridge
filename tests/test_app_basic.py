@@ -6,9 +6,9 @@ import httpx
 import openai
 import pytest
 
-from ai_gateway.app import create_app
-from ai_gateway.config import Settings
-from ai_gateway.providers.base import Provider
+from agentbridge.app import create_app
+from agentbridge.config import Settings
+from agentbridge.providers.base import Provider
 from tests.conftest import app_client, make_config
 
 
@@ -109,7 +109,7 @@ async def test_invalid_policy_header_is_400(client: httpx.AsyncClient) -> None:
 
 
 async def test_fallback_visible_in_headers(settings: Settings) -> None:
-    from ai_gateway.providers.mock import MockProvider, http_5xx
+    from agentbridge.providers.mock import MockProvider, http_5xx
 
     providers: dict[str, Provider] = {
         "primary": MockProvider("primary", script=[http_5xx()]),
@@ -128,7 +128,7 @@ async def test_fallback_visible_in_headers(settings: Settings) -> None:
 
 
 async def test_mid_stream_failure_becomes_in_band_error_event(settings: Settings) -> None:
-    from ai_gateway.providers.mock import MockProvider
+    from agentbridge.providers.mock import MockProvider
 
     providers: dict[str, Provider] = {
         "primary": MockProvider("primary", reply="abcdefghijkl", chunk_size=4, stream_fail_after=1),
@@ -153,7 +153,7 @@ async def test_mid_stream_failure_becomes_in_band_error_event(settings: Settings
 
 
 async def test_all_targets_failing_returns_502(settings: Settings) -> None:
-    from ai_gateway.providers.mock import MockProvider, http_5xx
+    from agentbridge.providers.mock import MockProvider, http_5xx
 
     providers: dict[str, Provider] = {
         "primary": MockProvider("primary", script=[http_5xx()]),

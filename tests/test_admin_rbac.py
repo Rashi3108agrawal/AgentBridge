@@ -9,8 +9,8 @@ import httpx
 import pytest
 from fastapi.routing import APIRoute
 
-from ai_gateway import admin as admin_module
-from ai_gateway.admin_users import (
+from agentbridge import admin as admin_module
+from agentbridge.admin_users import (
     ROLE_PERMISSIONS,
     AdminAuthenticator,
     AdminAuthError,
@@ -21,10 +21,10 @@ from ai_gateway.admin_users import (
     generate_admin_token,
     parse_admin_prefix,
 )
-from ai_gateway.app import create_app
-from ai_gateway.config import Settings
-from ai_gateway.db import Database
-from ai_gateway.providers.base import Provider
+from agentbridge.app import create_app
+from agentbridge.config import Settings
+from agentbridge.db import Database
+from agentbridge.providers.base import Provider
 from tests.conftest import ADMIN, OPERATOR, VIEWER, app_client, make_config
 
 

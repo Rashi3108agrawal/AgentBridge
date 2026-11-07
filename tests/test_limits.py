@@ -8,10 +8,10 @@ from decimal import Decimal
 import pytest
 from redis.asyncio import Redis
 
-from ai_gateway.auth import Principal
-from ai_gateway.db import month_bucket
-from ai_gateway.errors import BudgetExceededError, InvalidRequestError, RateLimitedError
-from ai_gateway.limits import (
+from agentbridge.auth import Principal
+from agentbridge.db import month_bucket
+from agentbridge.errors import BudgetExceededError, InvalidRequestError, RateLimitedError
+from agentbridge.limits import (
     Guard,
     InMemoryBudgetStore,
     InMemoryLimiter,
@@ -19,7 +19,7 @@ from ai_gateway.limits import (
     RedisBudgetStore,
     RedisLimiter,
 )
-from ai_gateway.redis_client import make_redis
+from agentbridge.redis_client import make_redis
 
 
 class Clock:

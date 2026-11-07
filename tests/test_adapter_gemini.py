@@ -5,9 +5,9 @@ import json
 import pytest
 import respx
 
-from ai_gateway.errors import REFUSAL, ProviderError
-from ai_gateway.models import ChatRequest, EmbeddingRequest, Message, ToolCall, ToolSpec
-from ai_gateway.providers.gemini import GeminiProvider, build_payload
+from agentbridge.errors import REFUSAL, ProviderError
+from agentbridge.models import ChatRequest, EmbeddingRequest, Message, ToolCall, ToolSpec
+from agentbridge.providers.gemini import GeminiProvider, build_payload
 from tests.fixture_utils import load_bytes, load_json
 
 BASE = "https://gemini.test/v1beta"

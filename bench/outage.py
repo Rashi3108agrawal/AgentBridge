@@ -209,7 +209,7 @@ async def main() -> None:
     primary = start_upstream(PRIMARY, args.latency_ms)
     secondary = start_upstream(SECONDARY, args.latency_ms)
     gateway = subprocess.Popen(
-        [*UV, "ai_gateway.app:create_app", "--factory", "--port", str(GATEWAY)],
+        [*UV, "agentbridge.app:create_app", "--factory", "--port", str(GATEWAY)],
         cwd=ROOT,
         env=gw_env,
     )

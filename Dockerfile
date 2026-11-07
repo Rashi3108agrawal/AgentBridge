@@ -21,4 +21,4 @@ ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
 USER gateway
 EXPOSE 8080
 HEALTHCHECK --interval=10s --timeout=3s CMD python -c "import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:8080/health'); sys.exit(0)"
-CMD ["ai-gateway", "serve", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["agentbridge", "serve", "--host", "0.0.0.0", "--port", "8080"]

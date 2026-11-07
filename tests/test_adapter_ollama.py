@@ -4,8 +4,8 @@ import json
 
 import respx
 
-from ai_gateway.models import ChatRequest, EmbeddingRequest, Message, ToolSpec
-from ai_gateway.providers.ollama import OllamaProvider, build_payload
+from agentbridge.models import ChatRequest, EmbeddingRequest, Message, ToolSpec
+from agentbridge.providers.ollama import OllamaProvider, build_payload
 from tests.fixture_utils import load_bytes, load_json
 
 BASE = "http://ollama.test:11434"

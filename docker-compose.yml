@@ -3,7 +3,7 @@ services:
   # One-shot release step: apply migrations before the app starts (the app itself won't touch DDL).
   migrate:
     build: .
-    command: ["ai-gateway", "migrate"]
+    command: ["agentbridge", "migrate"]
     environment:
       GATEWAY_DATABASE_URL: postgresql+asyncpg://gateway:gateway@postgres:5432/gateway
     depends_on:
@@ -28,7 +28,7 @@ services:
 
   usage-worker:
     build: .
-    command: ["ai-gateway", "usage-worker"]
+    command: ["agentbridge", "usage-worker"]
     environment:
       GATEWAY_AUTO_MIGRATE: "false"
       GATEWAY_CONFIG_PATH: /app/config/gateway.yaml

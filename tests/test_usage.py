@@ -8,15 +8,15 @@ import pytest
 from redis.asyncio import Redis
 from sqlalchemy import func, select
 
-from ai_gateway.db import Database, UsageDaily, UsageEvent
-from ai_gateway.metering.usage import (
+from agentbridge.db import Database, UsageDaily, UsageEvent
+from agentbridge.metering.usage import (
     InProcessSink,
     RedisStreamSink,
     UsageRecord,
     UsageWorker,
     write_batch,
 )
-from ai_gateway.redis_client import make_redis
+from agentbridge.redis_client import make_redis
 
 
 @pytest.fixture

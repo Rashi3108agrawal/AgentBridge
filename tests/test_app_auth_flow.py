@@ -8,9 +8,9 @@ from typing import Any
 import httpx
 import pytest
 
-from ai_gateway.app import create_app
-from ai_gateway.config import Settings
-from ai_gateway.providers.base import Provider
+from agentbridge.app import create_app
+from agentbridge.config import Settings
+from agentbridge.providers.base import Provider
 from tests.conftest import ADMIN, app_client, make_config
 
 CHAT = {"model": "chat-default", "messages": [{"role": "user", "content": "hi"}]}

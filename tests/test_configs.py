@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from ai_gateway.config import GatewayConfig
+from agentbridge.config import GatewayConfig
 
 ROOT = Path(__file__).parents[1]
 

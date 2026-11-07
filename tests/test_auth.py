@@ -5,9 +5,9 @@ from datetime import timedelta
 
 import pytest
 
-from ai_gateway.auth import KeyAuthenticator, generate_key, hash_key, parse_prefix
-from ai_gateway.db import ApiKey, Database, Project, Tenant, utcnow
-from ai_gateway.errors import AuthenticationError, PermissionDeniedError
+from agentbridge.auth import KeyAuthenticator, generate_key, hash_key, parse_prefix
+from agentbridge.db import ApiKey, Database, Project, Tenant, utcnow
+from agentbridge.errors import AuthenticationError, PermissionDeniedError
 
 PEPPER = "test-pepper"
 

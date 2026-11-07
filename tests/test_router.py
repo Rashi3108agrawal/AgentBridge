@@ -3,9 +3,9 @@ from __future__ import annotations
 import random
 from collections import Counter
 
-from ai_gateway.config import AliasConfig, TargetConfig
-from ai_gateway.routing.health import LatencyTracker
-from ai_gateway.routing.router import RequestFeatures, eligible, plan
+from agentbridge.config import AliasConfig, TargetConfig
+from agentbridge.routing.health import LatencyTracker
+from agentbridge.routing.router import RequestFeatures, eligible, plan
 
 
 def alias(policy: str = "priority", **req: object) -> AliasConfig:

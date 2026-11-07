@@ -104,7 +104,7 @@ async def run_load(
 def create_admin(gw_env: dict[str, str]) -> str:
     """Create an owner admin in the bench DB via the CLI (it also runs migrations); return its token."""
     out = subprocess.run(
-        [sys.executable, "-m", "ai_gateway.cli", "create-admin", "--email", "bench@example.com"],
+        [sys.executable, "-m", "agentbridge.cli", "create-admin", "--email", "bench@example.com"],
         cwd=ROOT,
         env=gw_env,
         check=True,
@@ -168,7 +168,7 @@ async def main() -> None:
             [*uv, "bench.mock_upstream:app", "--port", str(UPSTREAM)], cwd=ROOT, env=env
         ),
         subprocess.Popen(
-            [*uv, "ai_gateway.app:create_app", "--factory", "--port", str(GATEWAY)],
+            [*uv, "agentbridge.app:create_app", "--factory", "--port", str(GATEWAY)],
             cwd=ROOT,
             env=gw_env,
         ),

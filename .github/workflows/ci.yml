@@ -34,7 +34,7 @@ jobs:
       - name: Migrations from an empty Postgres (alembic upgrade head)
         env:
           GATEWAY_DATABASE_URL: postgresql+asyncpg://gateway:gateway@localhost:55435/gateway
-        run: uv run ai-gateway migrate
+        run: uv run agentbridge migrate
       - name: Tests (incl. Redis Lua scripts, migrations on Postgres)
         env:
           REDIS_URL: redis://localhost:56382/0
@@ -47,10 +47,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build image
-        run: docker build -t ai-gateway:ci .
+        run: docker build -t agentbridge:ci .
       - name: Smoke test
         run: |
-          docker run -d --name gw -p 8080:8080 -e GATEWAY_DATABASE_URL=sqlite+aiosqlite:///:memory: -e GATEWAY_AUTH_ENABLED=false ai-gateway:ci
+          docker run -d --name gw -p 8080:8080 -e GATEWAY_DATABASE_URL=sqlite+aiosqlite:///:memory: -e GATEWAY_AUTH_ENABLED=false agentbridge:ci
           for i in $(seq 1 30); do curl -sf localhost:8080/health && break; sleep 1; done
           curl -sf localhost:8080/v1/chat/completions -H 'content-type: application/json' \
             -d '{"model":"chat-default","messages":[{"role":"user","content":"hi"}]}'

@@ -18,7 +18,7 @@ from alembic.script import ScriptDirectory
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import Connection
 
-from ai_gateway.db import Base, Database, alembic_config
+from agentbridge.db import Base, Database, alembic_config
 
 APP_TABLES = {"tenants", "projects", "api_keys", "usage_events", "usage_daily", "admin_users"}
 

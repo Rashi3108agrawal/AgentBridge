@@ -6,7 +6,7 @@ import httpx
 import pytest
 import respx
 
-from ai_gateway.errors import (
+from agentbridge.errors import (
     CONTEXT_LENGTH,
     HTTP_5XX,
     HTTP_429,
@@ -14,8 +14,8 @@ from ai_gateway.errors import (
     TIMEOUT,
     ProviderError,
 )
-from ai_gateway.models import ChatRequest, EmbeddingRequest, Message, ToolSpec
-from ai_gateway.providers.openai import OpenAIProvider, build_payload
+from agentbridge.models import ChatRequest, EmbeddingRequest, Message, ToolSpec
+from agentbridge.providers.openai import OpenAIProvider, build_payload
 
 BASE = "https://api.openai.test/v1"
 
@@ -174,8 +174,8 @@ async def test_embeddings(provider: OpenAIProvider) -> None:
 
 
 def test_message_builder_keeps_tool_fields() -> None:
-    from ai_gateway.models import ToolCall
-    from ai_gateway.providers.openai import to_openai_message
+    from agentbridge.models import ToolCall
+    from agentbridge.providers.openai import to_openai_message
 
     m = Message(role="assistant", tool_calls=[ToolCall(id="c", name="f", arguments="{}")])
     assert to_openai_message(m)["tool_calls"][0]["function"]["name"] == "f"

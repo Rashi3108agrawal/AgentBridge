@@ -13,4 +13,4 @@ up:
 down:
 	docker compose down
 run:
-	uv run uvicorn ai_gateway.app:create_app --factory --reload --port 8080
+	uv run uvicorn agentbridge.app:create_app --factory --reload --port 8080

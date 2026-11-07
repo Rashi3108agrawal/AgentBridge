@@ -5,9 +5,9 @@ import json
 import pytest
 import respx
 
-from ai_gateway.errors import HTTP_5XX, HTTP_429, ProviderError
-from ai_gateway.models import ChatRequest, Message, ToolCall, ToolSpec
-from ai_gateway.providers.anthropic import AnthropicProvider, build_payload
+from agentbridge.errors import HTTP_5XX, HTTP_429, ProviderError
+from agentbridge.models import ChatRequest, Message, ToolCall, ToolSpec
+from agentbridge.providers.anthropic import AnthropicProvider, build_payload
 from tests.fixture_utils import load_bytes, load_json
 
 BASE = "https://api.anthropic.test"
