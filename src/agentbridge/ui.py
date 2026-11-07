@@ -48,13 +48,18 @@ CONSOLE_HTML = """<!DOCTYPE html>
     .field label { font-weight: 600; color: var(--text); }
     .field input, .field select { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: #fff; }
     .field input:focus, .field select:focus { outline: 2px solid rgba(180,100,57,0.15); border-color: var(--accent); }
-    .primary-btn, .secondary-btn, .danger-btn {
+    .primary-btn, .secondary-btn, .danger-btn, .ghost-btn {
       border: none; border-radius: 10px; padding: 11px 16px; cursor: pointer; font-weight: 700;
     }
     .primary-btn { background: var(--brand); color: white; }
     .secondary-btn { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
     .danger-btn { background: var(--danger); color: white; }
+    .ghost-btn { background: rgba(180,100,57,0.08); color: var(--accent); border: 1px solid rgba(180,100,57,0.18); }
     .stack { display: flex; gap: 10px; flex-wrap: wrap; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 12px 0 16px; }
+    .toolbar .field { margin-bottom: 0; min-width: 180px; }
+    .table-action { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; color: var(--text); cursor: pointer; }
+    .table-action.danger { border-color: rgba(178,58,58,0.25); color: var(--danger); background: rgba(178,58,58,0.04); }
     .alert { border-radius: 10px; padding: 10px 12px; font-size: 14px; margin-bottom: 16px; }
     .alert.error { background: var(--danger-soft); color: var(--danger); border: 1px solid #f0b1b1; }
     .alert.success { background: var(--ok-soft); color: var(--ok); border: 1px solid #b7d9bf; }
@@ -149,7 +154,7 @@ CONSOLE_HTML = """<!DOCTYPE html>
             </form>
             <table>
               <thead>
-                <tr><th>Name</th><th>ID</th></tr>
+                <tr><th>Name</th><th>ID</th><th>Actions</th></tr>
               </thead>
               <tbody id="tenantTableBody"></tbody>
             </table>
@@ -191,7 +196,7 @@ CONSOLE_HTML = """<!DOCTYPE html>
             </form>
             <table>
               <thead>
-                <tr><th>Project</th><th>Tenant</th><th>Budget</th></tr>
+                <tr><th>Project</th><th>Tenant</th><th>Budget</th><th>Actions</th></tr>
               </thead>
               <tbody id="projectTableBody"></tbody>
             </table>
@@ -233,7 +238,7 @@ CONSOLE_HTML = """<!DOCTYPE html>
             <div id="newKeyBox" class="alert success hidden" style="margin-top: 14px;"></div>
             <table>
               <thead>
-                <tr><th>Name</th><th>Prefix</th><th>RPM</th><th>TPM</th><th>Status</th></tr>
+                <tr><th>Name</th><th>Prefix</th><th>RPM</th><th>TPM</th><th>Status</th><th>Actions</th></tr>
               </thead>
               <tbody id="keyTableBody"></tbody>
             </table>
@@ -247,9 +252,20 @@ CONSOLE_HTML = """<!DOCTYPE html>
 
         <div class="panel">
           <h2>Usage overview</h2>
-          <div class="field" style="max-width: 240px; margin-top: 0;">
-            <label for="usageProjectSelect">Project</label>
-            <select id="usageProjectSelect"></select>
+          <div class="toolbar">
+            <div class="field" style="max-width: 240px; margin-top: 0;">
+              <label for="usageProjectSelect">Project</label>
+              <select id="usageProjectSelect"></select>
+            </div>
+            <div class="field" style="max-width: 180px; margin-top: 0;">
+              <label for="usageFromInput">From</label>
+              <input id="usageFromInput" type="date" />
+            </div>
+            <div class="field" style="max-width: 180px; margin-top: 0;">
+              <label for="usageToInput">To</label>
+              <input id="usageToInput" type="date" />
+            </div>
+            <button id="usageRefreshBtn" class="secondary-btn" type="button">Apply filters</button>
           </div>
           <div class="chart-wrap">
             <canvas id="usageChart" width="900" height="220"></canvas>
@@ -274,7 +290,9 @@ CONSOLE_HTML = """<!DOCTYPE html>
       projects: [],
       keys: [],
       providerHealth: {},
-      usage: []
+      usage: [],
+      usageFilters: { from: '', to: '' },
+      selectedProjectId: null
     };
 
     const ui = {
@@ -289,6 +307,9 @@ CONSOLE_HTML = """<!DOCTYPE html>
       projectTenantSelect: document.getElementById('projectTenantSelect'),
       keyProjectSelect: document.getElementById('keyProjectSelect'),
       usageProjectSelect: document.getElementById('usageProjectSelect'),
+      usageFromInput: document.getElementById('usageFromInput'),
+      usageToInput: document.getElementById('usageToInput'),
+      usageRefreshBtn: document.getElementById('usageRefreshBtn'),
       providerHealth: document.getElementById('providerHealth'),
       usageTableBody: document.getElementById('usageTableBody'),
       kpiCards: document.getElementById('kpiCards'),
@@ -373,6 +394,8 @@ CONSOLE_HTML = """<!DOCTYPE html>
     }
 
     async function loadDashboard() {
+      ui.usageFromInput.value = state.usageFilters.from;
+      ui.usageToInput.value = state.usageFilters.to;
       await Promise.all([loadTenants(), loadProjects(), loadProviderHealth()]);
       if (state.projects.length) {
         const selected = state.projects.find(p => p.id === state.selectedProjectId) || state.projects[0];
@@ -422,9 +445,16 @@ CONSOLE_HTML = """<!DOCTYPE html>
         renderUsage();
         return;
       }
-      const rows = await api(`/admin/v1/usage?project_id=${encodeURIComponent(projectId)}&group_by=day`);
+      const params = new URLSearchParams({
+        project_id: projectId,
+        group_by: 'day'
+      });
+      if (state.usageFilters.from) params.set('from', state.usageFilters.from);
+      if (state.usageFilters.to) params.set('to', state.usageFilters.to);
+      const rows = await api(`/admin/v1/usage?${params.toString()}`);
       state.usage = rows;
       renderUsage();
+      renderKPIs();
     }
 
     function renderTenantOptions() {
@@ -442,33 +472,48 @@ CONSOLE_HTML = """<!DOCTYPE html>
       if (state.projects.length && !state.selectedProjectId) {
         state.selectedProjectId = state.projects[0].id;
       }
-      if (state.selectedProjectId) {
+      if (state.selectedProjectId && state.projects.some(p => p.id === state.selectedProjectId)) {
         ui.keyProjectSelect.value = state.selectedProjectId;
         ui.usageProjectSelect.value = state.selectedProjectId;
       }
     }
 
     function renderTenantTable() {
-      ui.tenantTableBody.innerHTML = !state.tenants.length ? '<tr><td colspan="2" class="empty">No tenants yet</td></tr>' : state.tenants.map(t => `
-        <tr><td>${t.name}</td><td class="mono">${t.id}</td></tr>
+      if (!state.tenants.length) {
+        ui.tenantTableBody.innerHTML = '<tr><td colspan="3" class="empty">No tenants yet</td></tr>';
+        return;
+      }
+      ui.tenantTableBody.innerHTML = state.tenants.map(t => `
+        <tr>
+          <td>${t.name}</td>
+          <td class="mono">${t.id}</td>
+          <td><button class="table-action danger" data-action="delete-tenant" data-id="${t.id}">Delete</button></td>
+        </tr>
       `).join('');
     }
 
     function renderProjectTable() {
       if (!state.projects.length) {
-        ui.projectTableBody.innerHTML = '<tr><td colspan="3" class="empty">No projects yet</td></tr>';
+        ui.projectTableBody.innerHTML = '<tr><td colspan="4" class="empty">No projects yet</td></tr>';
         return;
       }
       ui.projectTableBody.innerHTML = state.projects.map(p => {
         const tenantName = state.tenants.find(t => t.id === p.tenant_id)?.name || p.tenant_id;
         const budget = p.monthly_token_budget ? `${Number(p.monthly_token_budget).toLocaleString()} tokens` : 'No cap';
-        return `<tr><td>${p.name}</td><td>${tenantName}</td><td class="mono">${budget}</td></tr>`;
+        return `
+          <tr>
+            <td>${p.name}</td>
+            <td>${tenantName}</td>
+            <td class="mono">${budget}</td>
+            <td><button class="table-action danger" data-action="delete-project" data-id="${p.id}">Delete</button></td>
+          </tr>
+        `;
       }).join('');
     }
 
     function renderKeyTable() {
       if (!state.keys.length) {
-        ui.keyTableBody.innerHTML = '<tr><td colspan="5" class="empty">No keys for this project</td></tr>';
+        ui.keyTableBody.innerHTML = '<tr><td colspan="6" class="empty">No keys for this project</td></tr>';
         return;
       }
       ui.keyTableBody.innerHTML = state.keys.map(k => `
@@ -478,6 +523,7 @@ CONSOLE_HTML = """<!DOCTYPE html>
           <td>${k.rpm_limit}</td>
           <td>${k.tpm_limit}</td>
           <td><span class="badge ${k.revoked ? 'warn' : 'ok'}">${k.revoked ? 'revoked' : 'active'}</span></td>
+          <td><button class="table-action danger" data-action="delete-key" data-id="${k.id}">Revoke</button></td>
         </tr>
       `).join('');
     }
@@ -492,11 +538,11 @@ CONSOLE_HTML = """<!DOCTYPE html>
         const circuit = data.circuit || 'unknown';
         const badgeClass = circuit === 'closed' ? 'ok' : circuit === 'half_open' ? 'warn' : 'err';
         const latencyText = data.ewma_latency_s && Object.keys(data.ewma_latency_s).length
-          ? Object.entries(data.ewma_latency_s).map(([k, v]) => `${k.split(':').pop()}: ${v}s`).join(', ')
+          ? Object.entries(data.ewma_latency_s).map(([k, v]) => `${k.split(':').pop()}: ${Number(v).toFixed(3)}s`).join(', ')
           : 'n/a';
         return `
           <div class="panel" style="padding: 14px; margin-bottom: 12px; border-color: var(--border);">
-            <div style="display:flex;justify-content:space-between;align-items:center; margin-bottom: 8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center; margin-bottom: 8px; gap: 8px;">
               <strong>${name}</strong>
               <span class="badge ${badgeClass}">${circuit}</span>
             </div>
@@ -508,14 +554,16 @@ CONSOLE_HTML = """<!DOCTYPE html>
 
     function renderKPIs() {
       const totalProjects = state.projects.length;
-      const totalKeys = state.keys.length;
+      const activeKeys = state.keys.filter(k => !k.revoked).length;
       const providerCount = Object.keys(state.providerHealth || {}).length;
       const totalUsage = state.usage.reduce((sum, row) => sum + (Number(row.requests) || 0), 0);
+      const totalCost = state.usage.reduce((sum, row) => sum + (Number(row.est_cost_usd) || 0), 0);
       const cards = [
         { label: 'Projects', value: String(totalProjects) },
-        { label: 'Keys', value: String(totalKeys) },
+        { label: 'Active keys', value: String(activeKeys) },
         { label: 'Providers', value: String(providerCount) },
-        { label: 'Requests (day)', value: Number(totalUsage).toLocaleString() },
+        { label: 'Requests', value: Number(totalUsage).toLocaleString() },
+        { label: 'Cost', value: `$${totalCost.toFixed(4)}` }
       ];
       ui.kpiCards.innerHTML = cards.map(card => `
         <div class="kpi">
@@ -527,7 +575,7 @@ CONSOLE_HTML = """<!DOCTYPE html>
 
     function renderUsage() {
       const rows = state.usage || [];
-      ui.usageTableBody.innerHTML = !rows.length ? '<tr><td colspan="5" class="empty">No usage data yet.</td></tr>' : rows.map(row => `
+      ui.usageTableBody.innerHTML = !rows.length ? '<tr><td colspan="5" class="empty">No usage data yet for this window.</td></tr>' : rows.map(row => `
         <tr>
           <td>${row.day || 'n/a'}</td>
           <td>${Number(row.requests || 0).toLocaleString()}</td>
@@ -544,10 +592,17 @@ CONSOLE_HTML = """<!DOCTYPE html>
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, 'rgba(180,100,57,0.28)');
+      gradient.addColorStop(1, 'rgba(180,100,57,0.04)');
+
       const margin = { top: 18, right: 30, bottom: 32, left: 40 };
       const maxValue = Math.max(...rows.map(r => Number(r.requests || 0)), 1);
       const width = canvas.width - margin.left - margin.right;
       const height = canvas.height - margin.top - margin.bottom;
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(margin.left, margin.top, width, height);
 
       ctx.strokeStyle = '#d8d0c3';
       ctx.lineWidth = 1;
@@ -557,7 +612,20 @@ CONSOLE_HTML = """<!DOCTYPE html>
       ctx.lineTo(margin.left + width, height + margin.top);
       ctx.stroke();
 
-      const barWidth = Math.max(16, width / Math.max(rows.length, 1) - 10);
+      for (let step = 0; step <= 4; step += 1) {
+        const y = margin.top + (height / 4) * step;
+        ctx.strokeStyle = 'rgba(112,106,99,0.18)';
+        ctx.beginPath();
+        ctx.moveTo(margin.left, y);
+        ctx.lineTo(margin.left + width, y);
+        ctx.stroke();
+        const valueLabel = Math.round(maxValue - ((maxValue / 4) * step));
+        ctx.fillStyle = '#706a63';
+        ctx.font = '11px sans-serif';
+        ctx.fillText(String(valueLabel), 8, y + 4);
+      }
+
+      const barWidth = Math.max(18, width / Math.max(rows.length, 1) - 12);
       rows.forEach((row, index) => {
         const x = margin.left + index * (width / Math.max(rows.length, 1)) + 8;
         const value = Number(row.requests || 0);
@@ -637,6 +705,40 @@ CONSOLE_HTML = """<!DOCTYPE html>
       state.selectedProjectId = event.target.value || null;
       await loadProjectKeys();
       await loadUsage();
+    });
+
+    ui.usageRefreshBtn.addEventListener('click', async () => {
+      state.usageFilters.from = ui.usageFromInput.value;
+      state.usageFilters.to = ui.usageToInput.value;
+      await loadUsage();
+    });
+
+    document.addEventListener('click', async (event) => {
+      const target = event.target.closest('[data-action]');
+      if (!target) return;
+      const { action, id } = target.dataset;
+      if (!id) return;
+      if (action === 'delete-key') {
+        if (!window.confirm('Revoke this API key?')) return;
+        await api(`/admin/v1/keys/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        await loadProjectKeys();
+        await loadUsage();
+      }
+      if (action === 'delete-project') {
+        if (!window.confirm('Delete this project and all of its API keys?')) return;
+        await api(`/admin/v1/projects/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        await loadProjects();
+        await loadProjectKeys();
+        await loadUsage();
+      }
+      if (action === 'delete-tenant') {
+        if (!window.confirm('Delete this tenant and all child projects/keys?')) return;
+        await api(`/admin/v1/tenants/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        await loadTenants();
+        await loadProjects();
+        await loadProjectKeys();
+        await loadUsage();
+      }
     });
 
     if (state.token) {

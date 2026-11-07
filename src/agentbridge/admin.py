@@ -16,7 +16,7 @@ from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, EmailStr, Field
-from sqlalchemy import case, func, select
+from sqlalchemy import case, delete, func, select
 from sqlalchemy.exc import IntegrityError
 
 from agentbridge.admin_users import (
@@ -129,6 +129,23 @@ async def create_tenant(body: TenantIn, request: Request) -> dict[str, Any]:
         return {"id": tenant.id, "name": tenant.name}
 
 
+@router.delete("/tenants/{tenant_id}", dependencies=[Depends(require(Permission.TENANTS_WRITE))])
+async def delete_tenant(tenant_id: str, request: Request) -> dict[str, Any]:
+    async with _db(request).session() as s:
+        tenant = await s.get(Tenant, tenant_id)
+        if tenant is None:
+            raise HTTPException(404, "tenant not found")
+        project_ids = (
+            (await s.execute(select(Project.id).where(Project.tenant_id == tenant_id))).scalars().all()
+        )
+        if project_ids:
+            await s.execute(delete(ApiKey).where(ApiKey.project_id.in_(project_ids)))
+            await s.execute(delete(Project).where(Project.id.in_(project_ids)))
+        await s.delete(tenant)
+        await s.commit()
+    return {"id": tenant_id, "deleted": True}
+
+
 @router.get("/projects", dependencies=[Depends(require(Permission.PROJECTS_WRITE))])
 async def list_projects(request: Request, tenant_id: str | None = None) -> list[dict[str, Any]]:
     async with _db(request).session() as s:
@@ -163,6 +180,18 @@ async def create_project(body: ProjectIn, request: Request) -> dict[str, Any]:
         except IntegrityError as exc:
             raise HTTPException(409, "project name already exists for this tenant") from exc
         return {"id": project.id, "tenant_id": project.tenant_id, "name": project.name}
+
+
+@router.delete("/projects/{project_id}", dependencies=[Depends(require(Permission.PROJECTS_WRITE))])
+async def delete_project(project_id: str, request: Request) -> dict[str, Any]:
+    async with _db(request).session() as s:
+        project = await s.get(Project, project_id)
+        if project is None:
+            raise HTTPException(404, "project not found")
+        await s.execute(delete(ApiKey).where(ApiKey.project_id == project_id))
+        await s.delete(project)
+        await s.commit()
+    return {"id": project_id, "deleted": True}
 
 
 @router.post("/keys", status_code=201, dependencies=[Depends(require(Permission.KEYS_WRITE))])
